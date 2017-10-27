@@ -1,0 +1,151 @@
+type 'a stack = 'a list ;;
+module type STACK=
+sig
+
+val create: unit -> 'a stack
+val push: 'a ->'a stack -> 'a stack
+val isEmpty:  'a stack -> bool
+val size:  'a stack -> int
+val top:  'a stack -> 'a
+val pop:  'a stack -> 'a stack
+end;;
+
+
+
+module Stack : STACK =  
+struct
+
+(*DESCRIPTION:
+Creates an empty stack
+FUNCTIONALITY:
+val create: unit -> 'a stack
+TIME: O(constant)
+SPACE: O(constant)
+*)
+let create (():unit) = [];;
+
+
+
+
+
+(*DESCRIPTION:
+puts the element in the top position of stack which is the element we can access
+FUNCTIONALITY:
+val push: 'a -> 'a stack -> 'a stack
+TIME: O(constant)
+SPACE: O(constant)
+*)
+let rec push (x) (stck) = x::stck;;
+
+
+
+
+
+(*DESCRIPTION:
+checks if the stack is empty 
+FUNCTIONALITY:
+val isEmpty: 'a stack -> bool
+TIME: O(constant)
+SPACE: O(constant)
+*)
+let rec isEmpty (x) = (x=[]);;
+
+
+(*DESCRIPTION:
+tells the size of the stack  
+FUNCTIONALITY:
+val size: 'a stack -> int
+TIME: O(n)
+SPACE: O(n) n 1s are stored
+*)
+let rec size (x ) = List.length x;;
+
+
+
+(*DESCRIPTION:
+gives the last entered element of the stack  
+FUNCTIONALITY:
+val top: 'a stack -> 'a
+TIME: O(constant)
+SPACE: O(constant)
+*)
+let rec top  (x) = if (x=[])  then raise (Failure "No head found ") else List.hd x;;
+
+
+(*DESCRIPTION:
+removes the element which was entered last into the stack and give the rest of stack as answer 
+FUNCTIONALITY:
+val pop: 'a stack -> 'a stack
+TIME: O(constant)
+SPACE: O(constant)
+*)
+let rec pop (x)= if (size x) = 0 then raise (Failure "No tail found") else List.tl x;;
+
+
+
+end;;
+
+ open List;;
+ open Stack;;
+
+let rec foldr f e x = match x with y::ys -> f y (foldr f e ys)|[]->e;;
+
+(*Helper Functions from col100 slides*) 
+ let appendc a b = a@b;;
+ let isequal x y = (x=y);;
+ let orc x y = x||y;;
+ let rec ismember x y= foldr orc false (map (isequal x) y);;  
+ (*filters out the negation , the code is quite same to those of slides*)
+ let rec negfilter f l = match l with x::xs -> if ((f x)=false) then x::(negfilter f xs) else (negfilter f xs) 
+                                      |[]-> [];;
+
+(*Descr : to find whther a given node exist or not
+  Func : val checkfirtup : ('a * 'b) list -> 'a -> bool = <fun>
+  time :  O(n)
+  space : O(n*n)
+*)
+let rec checkfirtup graph node = match graph with (a,b)::xs->if (a=node) then true else checkfirtup (xs) node|[]->false ;;
+
+
+
+(*Descr : checks the validity of a graph 
+  Func : val validgraph : ('a * 'a list) list -> bool = <fun>
+  Time : o(n*n*n)
+  Space : O (n*n) for the worst graph all connectged with  all
+*)
+let rec validgraph graph = let rec checkervalid graph variable = (match variable with (a,b)::xs ->let andc x y = x&&y in ((ismember a b=false)&&(foldr andc true  (map (checkfirtup graph) b)))&&(checkervalid graph xs)|[]->true) in checkervalid graph graph;;
+
+
+(*Descr :My helper function to find the list of neighbours a particular node
+  Func :val findlistofnodes : ('a * 'b) list -> 'a -> 'b = <fun>
+  Time :O(n)
+  Space : O(n*n)
+ *) 
+let rec findlistofnodes graph x = match graph with []-> raise (Failure "invalid graph") |(a,b)::ts -> if (a=x) then b else findlistofnodes ts x;;
+
+
+
+
+(*Descr:finds all possible circles of the graph that contain a given number
+  Func:val circle : 'a -> ('a * 'a list) list -> 'a stack -> 'a -> 'a stack list =
+  <fun>
+  Time : 
+  Space :  *)
+let rec circle starter graph stck current = if ((current = starter)&&(stck != [])) then [stck] else if ((ismember current stck)&&(starter!=current)) then [] else foldr appendc [] (map (circle starter graph (push current stck)) (findlistofnodes graph current));;  
+
+
+let f graph starter = circle starter graph [] starter;; 
+let firtup (a,b) = a;;
+let printcycles graph :('a stack stack)=map rev (foldr appendc [] (map (f graph) (map firtup graph)));; 
+
+let rec cyclicacylic x s y = match (x,y) with ([],[])-> false|([],_::_)->false
+|(_::_,[])->false
+|(_::_,_::_)->if (hd y = hd x) then ((y@s)=x) else (cyclicacylic x (rev ((hd y)::s)) (tl y));;
+
+let rec scycles x = match x with l :: ls->l::(negfilter (cyclicacylic l []) (scycles ls)) | []->[];;
+let rec cycles x = scycles (printcycles x) ;;    
+let a = ref 3;;
+let rec longestcycles x s l= match x with []->s 
+                             |t::ts->let _=(a:=length t) in if (!a>l) then (longestcycles ts [t] !a) else if (!a=l) then (longestcycles ts (t::s) !a) else (longestcycles ts s l);;
+let b =ref [[1]];;
+let longestcycles graph = let _=(b:= cycles graph ) in match !b with (t::ts)->longestcycles (!b) [] (length t)|[]->[];;   

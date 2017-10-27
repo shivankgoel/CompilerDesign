@@ -1,0 +1,161 @@
+(* MAXINT FUNCTION IE THE MOST DIFFICULT ONE
+chose 1 as the value to be passed in maxint2 because i know how negative numbers are stored
+Though an alternate code is 
+let maxint () = let rec maxint3 x= (if (x*2<0) then (if (x+1<0) then x else maxint3 (x+1)) else maxint3 (x*2)) in maxint3 4645;;
+where you can substitute any value in place of 4645
+but this is slow
+*)
+
+let maxint () =let rec maxint2 x = (if (x*2<0) then 1 else (1+(2*(maxint2 (x*2))))) in maxint2 1;;
+
+(*TYPE DEFINTION*)
+
+type sign = Pos | Neg;;
+
+type digitseq = int list;;
+
+type bigint = sign * int * digitseq;;
+
+type nat = O | S of nat;;
+
+(*QUESTION 2*)
+let rec check_bigint (x:bigint) = match x with (_,_,[0])->false
+|(m,t,x'::xs)->if ((x'>=t)||(x'<0)||(t<=1)) then false else (check_bigint (m,t,xs))
+|(_,_,[])->true;;
+
+(* THIS IS A FUNCTION THAT TAKES A BIGINT AND INTEGER THEN IT APPENDS THE INTEGER INTO THE BEGINNING OF INT LIST*)
+let addasminsig (x:bigint) y:bigint = match x with (s,b,l)->(s,b,y::l);;
+
+(*THIS FUNCTION CHANGES THE SIGN OF THE BIGINT*)
+let changesign (x:bigint)  :bigint=match x with (Pos,c,x'::xs)->(Neg,c,x'::xs)
+|(Pos,c,([]:(int list)))->x
+|(Neg,c,([]:(int list)))->(Pos,c,[])
+|(Neg,c,x'::xs)->(Pos,c,x'::xs);;
+
+exception InvalidBase;;
+
+(*THIS FUNCTION CHANGES NAT TO INT*)
+let rec nat2int x = match x with S x'->1+(nat2int x')
+|O->0;;
+
+(*THIS FUNCTION CHANGES INT TO NAT*)
+let rec int2nat x = if x = 0 then O else S(int2nat (x-1));;
+
+(*THIS IS A FUNCTION THAT INCREASES THE VALUE OF BIGINT BY ONE AND GIVES A BIGINT*)
+let rec increasebyone (x:bigint) : bigint= 
+match x with (Pos,base,x'::xs)->if (x'+1>=base) then (addasminsig(increasebyone (Pos,base,xs)) 0) else (Pos,base,(x'+1)::xs)
+|(Pos,base,[])->(Pos,base,[1]) 
+|(Neg,base,[])->(Pos,base,[1]) 
+|(Neg,base,x'::xs)->if (x'=1&&xs=[]) then (Neg,base,[]) else if (x'=0) then (addasminsig (increasebyone (Neg,base,xs)) (base-1)) else (Neg,base,(x'-1)::xs);;
+
+(*THIS IS A FUNCTION THAT DECREASES THE VALUE OF BIGINT BY ONE AND GIVES A BIGINT *)
+let rec decreasebyone (x:bigint):bigint = match x with (Pos,base,[1])->(Pos,base,[])
+|(Pos,base,x'::xs)->if (x'!=0) then (Pos,base,(x'-1)::xs) else (addasminsig (decreasebyone (Pos,base,xs)) (base-1)) 
+|(Pos,base,[])->(Neg,base,[1])
+|(Neg,base,_)->changesign (increasebyone (changesign x));;
+
+(*QUESTION 3*)
+let rec int2bigint (x,y) :bigint = 
+if (y>=2) then 
+(
+	if (y>x&&x>0) then (Pos,y,[x])
+	else if (x>=y) then (addasminsig (int2bigint ((x/y),y)) (x-(y*(x/y))))
+	else if (x<0) then (changesign (int2bigint (((-1)*x),y)))
+	else (Pos,y,[])
+)
+else raise InvalidBase;;
+
+(*QUESTION 4*)
+let rec bigint2int (x:bigint) = match x with (_,_,[])->0 
+|(m,base,x'::xs)->if (m=Neg) then ((-1)*(x' + base*(bigint2int (Pos,base,xs)))) else (x' + base*(bigint2int (Pos,base,xs)));;
+
+(*QUESTION 5
+	the best code will be 	
+	let rec nat2bigint (x,y) :bigint = if (y>=2) then
+	(
+	match x with O->(Pos,y,[])
+	|S x'-> (increasebyone (nat2bigint (x',y)))
+	)
+	else raise InvalidBase;;
+	but assignment doesnt want
+*)
+let nat2bigint (x,y)=  if (y>=2) then (int2bigint ((nat2int x),y)) else raise InvalidBase;;
+
+exception NotValidBigint;;
+
+(*QUESTION 5
+	the best code will be 
+	let rec bigint2nat (x:bigint)= if (check_bigint x) then 
+	(
+	match x with (Pos,base,x'::xs)-> S (bigint2nat (decreasebyone x))
+	|(_,base,[])->O
+	|(Neg,base,x'::xs)-> raise (Failure "negative base")
+
+	)
+	else raise (Failure "Not valid bigint");;
+	but again assignment doesnt require it
+*)
+let bigint2nat x = if ((check_bigint x)&&(match x with (t,_,_)->if t=Pos then true else false)) then (int2nat (bigint2int x)) else (raise NotValidBigint);; 
+
+(*QUESTION 6*)
+let rec bigplus ((x:bigint),(y:bigint)) :bigint=match (x,y) with ((_,bae1,_),(_,bae2,_))->if (bae1=bae2) then
+(
+match (x,y) with ((Pos,base1,x'::xs),(Pos,base2,y'::ys))->bigplus ((increasebyone x),(decreasebyone y))
+|((_,base1,_),(_,base2,[]))->x
+|((_,base1,[]),(_,base2,_))->y
+|((Pos,base1,x'::xs),(Neg,base2,y'::ys))->bigplus ((decreasebyone x),(increasebyone y))
+|((Neg,base1,x'::xs),(Pos,base2,y'::ys))->bigplus (y,x)
+|((Neg,base1,xs),(Neg,base2,ys))->changesign(bigplus ((Pos,base1,xs),(Pos,base2,ys)))
+) 
+else raise (Failure "Base different");;
+(* THE FUNDAE OF THIS PROGRAM IS THAT A + B = A-1+B+1 *)
+
+(*QUESTION 7*)
+(*THE FUNDAMENTAL OF THIS PROGRAM IS A*B=A*(B-1) + A *)
+let rec bigtimes ((x:bigint),(y:bigint)) :bigint = match (x,y) with ((_,base1,_),(_,base2,_))-> if (base1=base2) then
+(
+match (x,y) with ((Pos,_,_),(Pos,_,[]))->y
+|((Pos,_,_),(Pos,_,x'::xs))->(bigplus (x,(bigtimes (x,(decreasebyone y)))))
+|((Neg,base1,x'),(Pos,base2,y'))->(changesign (bigtimes ((Pos,base1,x'),(Pos,base2,y'))))
+|((Pos,base1,x'),(Neg,base2,y'))->(changesign (bigtimes ((Pos,base1,x'),(Pos,base2,y'))))  
+|((Neg,base1,x'),(Neg,base2,y'))->(bigtimes ((Pos,base1,x'),(Pos,base2,y')))  
+)
+else raise (Failure "Base different");;
+
+let rec carryp (x,number)=match x with (_,base,[])->if number>0 then (Pos,base,[x]) else if (number<0) then (Neg,Base,[(-x)]) else number=0 then x
+|(Pos,base,x'::xs)->if (number>0) then (if (x'+number>base) then addasmisig (carryp(xs,((x'+number)/base)),((x'+number)-(((x'+number)/base)*base))) else if number<0 then (if (x'+number<0) then addasminsig (carryp    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,128 @@
+[Program
+	[Block
+		[DeclarationSeq
+			[VarDecls
+				[IntVarDecls
+					[INT
+					, VarDef
+						[Ident[a]
+						, VarDef1
+							[COMMA
+							, VarDef
+								[Ident[b]
+								, VarDef1[EOS]
+								]
+							]
+						]
+					]
+				, BoolVarDecls
+					[BOOL
+					, VarDef
+						[Ident[x]
+						, VarDef1
+							[COMMA
+							, VarDef
+								[Ident[y]
+								, VarDef1[EOS]
+								]
+							]
+						]
+					]
+				]
+			, ProcDecls[EPSILON]
+			]
+		, CommandSeq
+			[LB
+			, Command
+				[AssignmentCmd
+					[Ident[x]
+					, ASSIGN
+					, Expression
+						[BoolExpression
+							[BoolF
+								[BoolG
+									[BoolH
+										[BoolI
+											[NEG
+											, BoolJ
+												[IntExpression
+													[IntT
+														[IntF
+															[IntF1
+																[Ident[y]
+																]
+															]
+														, IntT1[EPSILON]
+														]
+													, IntE[EPSILON]
+													]
+												]
+											]
+										, BoolH1[EPSILON]
+										]
+									, BoolG1[EPSILON]
+									]
+								, BoolF1[EPSILON]
+								]
+							, BoolE[EPSILON]
+							]
+						]
+					]
+				, EOS
+				, Command
+					[AssignmentCmd
+						[Ident[a]
+						, ASSIGN
+						, Expression
+							[BoolExpression
+								[BoolF
+									[BoolG
+										[BoolH
+											[BoolI
+												[BoolJ
+													[IntExpression
+														[IntT
+															[IntF
+																[IntF1
+																	[Ident[b]
+																	]
+																]
+															, IntT1[EPSILON]
+															]
+														, IntE
+															[BINADD
+															, IntExpression
+																[IntT
+																	[IntF
+																		[IntF1
+																			[IntLiteral[2]
+																			]
+																		]
+																	, IntT1[EPSILON]
+																	]
+																, IntE[EPSILON]
+																]
+															]
+														]
+													]
+												]
+											, BoolH1[EPSILON]
+											]
+										, BoolG1[EPSILON]
+										]
+									, BoolF1[EPSILON]
+									]
+								, BoolE[EPSILON]
+								]
+							]
+						]
+					, EOS
+					, Command[EPSILON]
+					]
+				]
+			, RB
+			]
+		]
+	]
+]
+

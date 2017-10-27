@@ -1,0 +1,132 @@
+type complex = float * float;;
+let eps = 1E-12;;
+
+module Complex = struct 
+
+exception ZeroDiv;;
+let re ((a,b): complex) = a;;
+
+
+let im ((a,b): complex) = b;;
+
+
+(* magcx finds the magnitude of a complex number *)
+let magcx ((a,b):complex) = sqrt(a*.a +. b*.b);;
+
+
+(* conjugcx finds the complex conjugate of a complex number *)
+let conjugcx ((a,b): complex) : complex = (a, -.b);;
+
+(* real2complex takes a float and returns a complex number with
+input float as its real part *)
+
+
+let real2complex a : complex = (a, 0.);;
+
+(* addinvcx finds the additive inverse of a complex number i.e.
+the number that when added to a complex number returns 0 *)
+
+
+let addinvcx ((a,b): complex) : complex = (-.a,-.b);;
+
+
+(* addcx adds two complex numbers *)
+let addcx c1 c2 : complex =
+((re c1)+.(re c2), (im c1)+.(im c2));;
+
+
+(* multcx multiplies two complex numbers *)
+let multcx c1 c2 : complex =
+let a1 = re c1 and b1 = im c1
+and a2 = re c2 and b2 = im c2
+in (a1*.a2 -. b1*.b2, a1*.b2 +. a2*.b1);;
+
+
+
+(* recipcx takes a complex number c and returns a complex
+number e such that multcx c e returns 1 *)
+let recipcx c : complex =
+let a = re c and b = im c
+in let d = (magcx c)*.(magcx c)
+in if d <= eps
+then raise ZeroDiv
+else (a/.d, -. b/.d);;
+end;;
+open Complex;;
+
+
+
+
+exception Notpossible;;
+
+open List;;
+type vectorcx=complex list;;
+type matrixcx = complex list list;;
+
+
+let rec removenth n l = match l with []->raise Notpossible
+|x::xs->if (n=1) then xs else x::(removenth (n-1) xs);;
+
+let rec delrow r (mat:matrixcx):matrixcx = removenth r mat;;
+
+let rec delcol c (mat:matrixcx):matrixcx = match mat with []->[]|x::xs-> if length x = 1 then [] else map (removenth c) mat;;
+
+exception Unequal;;
+
+let rec zip (l1,l2) = match (l1,l2) with ([],[])->[]
+|([],y::ys)->raise Unequal
+|(x::xs,[])->raise Unequal
+|(x::xs,y::ys)->(x,y)::(zip (xs,ys));;
+
+
+
+exception Impossiblegetcol;;
+let rec getcol (mat:matrixcx) = match mat with []->([],[])
+|l::ls->( match l with []->raise Impossiblegetcol |t::ts ->let (g,h)=(getcol ls) in ((t::g),(ts::h)));; 
+
+let rec validmat (mat:matrixcx) = let rec vm x l = match x with []->true|t::ts->if l=(-1) then (vm ts (length t)) else ((length t)=l)&&(vm ts l) in vm mat (-1);; 
+
+let rec foldr f l e = match l with []->e 
+|x::xs-> f x (foldr f xs e);;
+let rec mult (a,b) = multcx a b;;
+let rec multiplyaddsum a b = foldr addcx (map mult (zip (a,b))) (0.,0.);;
+
+
+let rec transpose (mat:matrixcx):matrixcx = match mat with []->[]
+  |x::xs->(match x with []->[]|_->let (a,b) = getcol mat in a::(transpose b));; 
+
+
+
+let rec matmult mat1 mat2= match mat1 with []->[]
+|x::xs->(map (multiplyaddsum x) mat2)::(matmult xs mat2);;
+
+let matmult (mat1:matrixcx) (mat2:matrixcx) = matmult mat1 (transpose mat2);;
+
+let rec nth n x = match x with []->raise(Failure "nothingleft")
+|t::ts-> if n=1 then t else nth (n-1) ts;;
+
+let rec tup n x = match x with []->([],[])
+| t::ts-> match t with []-> ([],[])
+                     |l::ls-> let (a,b) =(tup (n+1) (ls::ts)) in (l::a,(delcol n ts)::b);;    
+
+
+let rec alternator (x:vectorcx):vectorcx = let rec f (l1,t) = match l1 with []->[] | n::ns->(multcx (real2complex t) n)::f(ns,-.t) in f (x,1.);;
+
+
+
+let rec det (x:matrixcx):complex = match x with [[a]]->a
+|[]->raise (Failure "not defined in wolfram alpha")
+|_->let (a,b) = tup 1 x in (multiplyaddsum (alternator a) (map det b))  ;;
+
+let det x = match x with t::ts -> if length t = length x then det x else raise (Failure "openncertmaths12th");;
+let int2tuple x = ((float_of_int x),0.);;
+
+
+
+let rec intdet2comdet = map (map int2tuple) ;;
+
+
+let insert x y = x::y;;
+
+let rec detgen l x = if l = 0 then [] else if l = 1 then [[x]] else map (insert x) (match detgen (l-1) x with t::ts->t::(t::ts));;
+

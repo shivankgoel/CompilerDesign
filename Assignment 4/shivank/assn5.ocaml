@@ -1,0 +1,107 @@
+let rec sranker x y = match x with t::ts-> if t<=y then (1+(sranker ts y)) else 0 |[]->0;;
+let rec last m = match m with []->0|[x]->x|x::xs->last xs;;
+let rec last1 m = match m with []->raise (Failure "LAST")|[x]->x|x::xs->last1 xs;;
+let rec appender x list = match (list,x) with ([],_)-> [] 
+                          |( (con,t1,t2,t3)::lis , (m,n,o) )->(con,(t1@m),(t2@n),(t3@o))::(appender x lis);;
+let rec take list n = match list with []-> if n=0 then [] else raise (Failure "take")|x::xs ->if (n=0) then [] else x::(take xs (n-1));;
+let rec drop list n = match list with []-> if n=0 then [] else raise (Failure "drop")|x::xs ->if (n=0) then list else (drop xs (n-1));;   
+let rec hanoit (m(*no of elements*),i(*from1*),j(*to3*),k(*via2*),[s1;s2;s3]) =
+let (a1,a3,a2)=((nth [s1;s2;s3] (i-1)),(nth [s1;s2;s3] (j-1)),(nth [s1;s2;s3] (k-1)))
+    in  let g = (nth a1 (m-1)) in
+        if (((sranker a1 g)!=(length a1))||((sranker a2 g)!=(length a2))||((sranker a3 g)!=(length a3))) then 
+         appender ( (drop s1 (sranker s1 g)),(drop s2 (sranker s2 g)),(drop s3 (sranker s3 g)) ) (hanoit (m,i,j,k,[(take s1 (sranker s1 g)); (take s2 (sranker s2 g)); (take s3 (sranker s3 g)) ]))
+        else 
+           if (m <= 0) then []
+           else if (m=1) then                     
+                            if (isEmpty a3) then
+                                          if ((i,j,k) = (1,3,2)) then ((FromTo (i,j)),(pop s1),(s2),(push (top s1) s3))::[]
+                                     else if ((i,j,k) = (2,3,1)) then ((FromTo (i,j)),(s1),(pop s2),(push (top s2) s3))::[]
+                                     else if ((i,j,k) = (2,1,3)) then ((FromTo (i,j)),(push (top s2) s1),(pop s2),(s3))::[]
+                                     else if ((i,j,k) = (3,1,2)) then ((FromTo (i,j)),(push (top s3) s1),(s2),(pop s3))::[]
+                                     else if ((i,j,k) = (1,2,3)) then ((FromTo (i,j)),(pop s1),(push (top s1) s2),(s3))::[]
+                                     else if ((i,j,k) = (3,2,1)) then ((FromTo (i,j)),(s1),(push (top s3) s2),(pop s3))::[]
+                                     else raise (Failure "why_you_do_this")
+                              else if ((top a1)<(top a3)) then
+                                          if ((i,j,k) = (1,3,2)) then ((FromTo (i,j)),(pop s1),(s2),(push (top s1) s3))::[]
+                                     else if ((i,j,k) = (2,3,1)) then ((FromTo (i,j)),(s1),(pop s2),(push (top s2) s3))::[]
+                                     else if ((i,j,k) = (2,1,3)) then ((FromTo (i,j)),(push (top s2) s1),(pop s2),(s3))::[]
+                                     else if ((i,j,k) = (3,1,2)) then ((FromTo (i,j)),(push (top s3) s1),(s2),(pop s3))::[]
+                                     else if ((i,j,k) = (1,2,3)) then ((FromTo (i,j)),(pop s1),(push (top s1) s2),(s3))::[]
+                                     else if ((i,j,k) = (3,2,1)) then ((FromTo (i,j)),(s1),(push (top s3) s2),(pop s3))::[]
+                                     else raise (Failure "why_you_do_this")
+                              else let a = hanoit ((sranker a3 (top a1)),j,i,k,[s1;s2;s3]) in
+                                     match (last1 a) with ((FromTo (blah1,blah2)),t1,t2,t3)->
+                                         a@(hanoit ((sranker a3 (top a1))+m,i,j,k,[t1;t2;t3]))
+   (*CASE|||||||||||regular hanoi*)                          
+        else if (((sranker a3 (nth a1 (m-1)))=0)&&((sranker a2 (nth a1 (m-1)))=0)) then let a = hanoit((m-1),i,k,j,[s1;s2;s3]) in 
+                  match (last1 a) with (FromTo(v1,v2),t1,t2,t3)-> 
+                      let b = hanoit (1,i,j,k,[t1;t2;t3]) in 
+                             match (last1 (a@b)) with (FromTo(v3,v4),t4,t5,t6)-> let c=hanoit((m-1),k,j,i,[t4;t5;t6]) in a@(b@c) 
+   (*CASE||||||||||||a2 koi farak nahin a1 par and a1 a3 vich ghussa hai*)        
+      else if ( ((sranker a2 (nth a1 (m-1)))=0) && ((sranker a3 (top a1))=(sranker a3 (nth a1 (m-1)) ))) then 
+                   let a = hanoit ((sranker a3 (top a1)),j,i,k,[s1;s2;s3]) in 
+                         match (last1 a) with (FromTo (v1,v2),t1,t2,t3)->  
+                                 let b = hanoit (((sranker a3 (top a1))+m),i,j,k,[t1;t2;t3]) in a@b 
+   (*CASE||||||||||||a3 koi farak nahin a1 a2 mein ghussa hai*)
+       else if ( ((sranker a3 (nth a1 (m-1)))=0) && ((sranker a2 (top a1))=(sranker a2 (nth a1 (m-1)) ))) then 
+              let a = hanoit (  (sranker a2 (top a1)) , k , i , j,[s1;s2;s3]) in 
+                    match (last1 a) with (FromTo (v1,v2),t1,t2,t3)->
+                        let b=hanoit (  (m+(sranker a2 (top a1))) , i , j , k ,[t1;t2;t3] ) in 
+                           match (last1 (a@b)) with (FromTo(v3,v4),t4,t5,t6) ->let c =hanoit (  (sranker a2 (top a1)) , j , k , i ,[t4;t5;t6]) in a@b@c
+
+
+        (*CASE||||||||||a1 in a3 and  a3 in a2 *) 
+             else if  (((sranker a2 (top a3))=(sranker a2 (last a3))) && ((sranker a3 (top a1))=(sranker a3 (nth a1 (m-1))))) then 
+            let a = hanoit ((sranker a2 (top a3)),k,j,i,[s1;s2;s3]) in 
+               match (last1 a) with (FromTo(x,y),t1,t2,t3)->
+                   let b= hanoit ( ((sranker a2 (top a3)) + (sranker a3 (top a1))),j,i,k,[t1;t2;t3]) in 
+                      match (last1 (a@b)) with (FromTo(x,y),t4,t5,t6)->
+                             let c = hanoit (((sranker a2 (top a3))+(sranker a3 (top a1))+m),i,j,k,[t4;t5;t6]) in 
+                                  match (last1 (a@(b@c))) with (FromTo (x,y),t7,t8,t9)-> 
+                                      let d = hanoit ((sranker a2 (top a3)),j,k,i,[t7;t8;t9]) in a@(b@(c@d))
+ 
+
+      (*CASE|||||||||||rest other cases which are uncovered*)
+      else  let d = hanoit (1,i,j,k,[s1;s2;s3]) in 
+               match (last1 d) with ((FromTo (blah5,blah6)),t7,t8,t9)->d@(hanoit ((m-1),i,j,k,[t7;t8;t9]))        
+
+
+
+(*raise (Failure "abhi nahin")*);;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let hanoi (m,i,j,k,s1,s2,s3)=hanoit(m,i,j,k,[s1;s2;s3]);;
+
+
+let rec delmem (the,list,store) = match (the,list) with (_,[])->the::store
+  |( (_,t1,t2,t3) , (_,t4,t5,t6)::lis ) ->if (t1,t2,t3) = (t4,t5,t6) then delmem (the,lis,[]) else delmem (the,lis,store@[(List.hd list)]);;
+
+let rec conciser x = match x with []->[]|t::ts-> let l = delmem (t,ts,[]) in t::(conciser (List.tl l))
+  ;;
+
+let hanoi (m,i,j,k,s1,s2,s3) = let a = hanoi (m,i,j,k,s1,s2,s3) in tl (conciser ( (FromTo(1,2),s1,s2,s3)::a));;
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,31 @@
+val oo= struct_bigint.getbigint ~9902;
+		fun hj g = struct_bigint.getbigint g;
+		val bi2stry= struct_bigint.bi2str [1,2,3,5];
+		val str2biy = struct_bigint.str2bi "-12343"
+		val lty = struct_bigint.lt ([0,2,3],[1,3,4,5]);
+		val test = struct_bigint.geq ([1,3,2,4,5],[1,3,4,5]);
+		val unmin= struct_bigint.unminus [0,2,3,5];
+
+
+		mul([1,2,4,5,1,5,6,2,1,5,3,3,6,6,1,3,6,4,6] ,[1,6,5,6,1,0,0,0,3,1,6,0,8,6,5,2,3,3,5,2,1,5])
+
+
+		fun bi2str (i:bigint) =
+		let 
+		fun bi2strtemp (i:bigint)=
+			let
+				fun conv biginty stringy = if (biginty =[]) then stringy else conv (rev (tl(rev biginty))) ([chr(hd(rev(biginty))+48)]@stringy);
+				val kk = implode (conv i []);
+				val k = if (hd(i) = 0) then String.extract(kk,1,NONE) else "-"^String.extract(kk,1,NONE);
+				
+			in (k)
+			end ;
+
+		in 
+
+		end;
+
+		
+			fun removezeroes (l)=
+				 if(hd(l)<>0)then l
+				 else removezeroes(tl(l));

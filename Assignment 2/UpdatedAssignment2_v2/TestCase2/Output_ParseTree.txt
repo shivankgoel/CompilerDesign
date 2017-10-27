@@ -1,0 +1,17 @@
+[Program
+	[ Block
+		[ DeclarationSeq 
+			[ VarDecls 
+				[IntVarDecls 
+					[ INT, VarDef [Ident[a], VarDef1 [EOS]] ], 
+				BoolVarDecls [EPSILON]] , 
+			  ProcDecls[EPSILON]
+			],
+		  CommandSeq 
+			[ LB, Command 
+				[ ReadCmd [READ, LP, Ident[a], RP], EOS, Command [EPSILON]], 
+				RB 
+			]
+		]
+	]
+]

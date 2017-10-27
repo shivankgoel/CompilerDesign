@@ -1,0 +1,5 @@
+1
+The program takes input from a file and stores it in a array and then get tokens from that array based on spaces and symbols as demiliters and then checks under which category the given token falls.
+
+Acknowledgements
+getlist function has been taken from sample programs on sir's webpage

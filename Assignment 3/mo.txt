@@ -1,0 +1,30 @@
+[Program
+	[DeclarationSeq
+		[IntVarDecls
+			[a
+			, b
+			]
+		, BoolVarDecls
+			[x
+			, y
+			]
+		]
+	, CommandSeq
+		[AssignmentCmd
+			[ASSIGN
+				[x
+				, NEG[y]
+				]
+			]
+		, AssignmentCmd
+			[ASSIGN
+				[a
+				, BINADD
+					[b
+					, 2
+					]
+				]
+			]
+		]
+	]
+]

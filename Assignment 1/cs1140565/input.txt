@@ -1,0 +1,14 @@
+int a , b ;
+bool c ,d;
+
+proc shivank 
+int e , f;
+proc ayush
+bool g , h;
+proc anant
+int i , j;
+{ } ;
+{ } ;
+{ } ;
+
+{ }

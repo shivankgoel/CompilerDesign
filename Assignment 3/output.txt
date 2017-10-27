@@ -1,0 +1,1 @@
+[Block[DeclarationSeq[INT[Ident[a][Ident[b]]]][BOOL[Ident[x][Ident[y]]]],CommandSeq[AssignmentCmd[Ident[x],ASSIGN,Expression[NEG[Ident[y]]]][AssignmentCmd[Ident[a],ASSIGN,Expression[Ident[b]][BINADD[IntLiteral[2]]]]]]]]

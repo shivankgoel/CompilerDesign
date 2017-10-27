@@ -1,0 +1,41 @@
+type polynomial = float list;;
+module Polynomials=
+struct
+exception UnequalLength
+let rec evaluate (x:polynomial) y = match x with []->0.0
+  |x'::xs->x'+.(y*.(evaluate xs y))
+let rec zip x y = match (x,y) with ([],[])->[]
+  |(a::am,[])->raise UnequalLength 
+  |([],b::bm)->raise UnequalLength
+  |(a::am,b::bm)->(a,b)::(zip am bm)
+open List
+let rec addftuple (p,q) = p+.q
+let rec spezip x y = match (x,y) with ([],[])->[]
+  |(a::am,[])->(a,0.0)::(spezip am [])
+  |([],b::bm)->(0.0,b)::(spezip bm [])
+  |(a::am,b::bm)->(a,b)::(spezip am bm)
+let rec addpoly (x:polynomial) (y:polynomial) :polynomial= map addftuple (spezip x y)
+let rec multiplyc c x= c*.x
+let rec scalorm c x = map (multiplyc c) x
+let rec multipoly (x:polynomial) (y:polynomial) :polynomial= match (x,y) with ([],[])->[]
+  |(a::am,[])->[]
+  |([],b::bm)-> []
+  |(a::am,b::bm)->addpoly (scalorm a y) (0.0::(multipoly am y))
+let rec derivativet ((list:polynomial),t):polynomial = match list with []->[]
+  |x::xs->if t=0. then derivativet (xs,1.) else (x*.t)::derivativet(xs,(t+.1.))
+let rec derivpoly poly :polynomial= derivativet (poly,0.0)
+let rec addtotuple t (x,y) = ((t::x),y)
+let rec divisionp x y = match (x,y) with (_,[])->raise (Failure "impossible for human")
+  |([],y'::ys)->([],[])
+  |(x'::xs,y'::ys)->if (List.length x)<(List.length y) then ([],x) else let t=(x'/.y') in (addtotuple t (divisionp (addpoly xs (scalorm (-1.0*.t) ys)) y))
+let reverser (x,y) = (List.rev x,List.rev y)
+let dividepoly (x:polynomial) (y:polynomial):(polynomial*polynomial) = reverser (divisionp (List.rev x) (List.rev y))
+let rec banish0 x = match x with []->[]
+  |x'::xs->if x'=0. then (banish0 xs) else x;;
+let banish (x:polynomial):polynomial = let t= List.rev x in List.rev (banish0 t)
+let dividepoly x y = match (dividepoly x (banish y)) with (x,y) -> (banish x,banish y)
+let addpoly x y = banish (addpoly (banish x) (banish y))
+let multipoly x y = banish (multipoly (banish x) (banish y))
+let derivpoly x= banish (derivpoly x);;
+end;;
+open Polynomials;;

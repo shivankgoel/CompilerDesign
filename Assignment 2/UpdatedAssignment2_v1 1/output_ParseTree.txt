@@ -1,0 +1,34 @@
+[ Program 
+	[ Block 
+		[DeclarationSeq 
+			[ varDecls 
+				[ IntVarDecls
+					[INT, Ident[a], COMMA, Ident[b], EOS ]
+				] 
+			], 
+		CommandSeq 
+			[ LB, Command 
+				[AssignmentCmd 
+					[Ident [a], ASSIGN, Expression [
+						IntExpression [
+							IntT [IntF [IntF1 [IntLiteral [5] ] ], IntT1[EPSILON] ], IntE [EPSILON]							
+							] 
+						] 
+					]
+				], 
+			EOS, Command 
+				[ AssignmentCmd  
+					[ Ident [b], ASSIGN, Expression
+						[ IntExpression 
+							[ IntT [ IntF[ IntF1 [Ident [a]]] , IntT1 [EPSILON]],
+							  IntE[ BINADD , IntExpression [IntT [IntF [IntF1 [IntLiteral [4] ] ], IntT1[EPSILON] ], IntE[EPSILON]] ]
+							
+							]
+						
+						]
+					]
+				], EOS, RB
+			]
+		] 
+	] 
+]

@@ -1,0 +1,26 @@
+[ Program 
+	[ Block 
+		[DeclarationSeq 
+			[ varDecls 
+				[ INT, Ident[a], COMMA, Ident[b], EOS 
+				] 
+			], 
+		CommandSeq 
+			[ LB, Command 
+				[AssignmentCmd 
+					[Ident [a], ASSIGN, Expression [IntExpression [ IntLiteral [5] ] ] ]
+				], 
+			EOS, Command 
+				[ AssignmentCmd  
+					[ Ident [b], ASSIGN, Expression
+						[ IntExpression 
+							[AddExpression 
+								[IntExpression[Ident[a]], BINADD, IntExpression[ IntLiteral [5] ] ] 
+							]
+						]
+					]
+				], EOS
+			]
+		] 
+	] 
+]
